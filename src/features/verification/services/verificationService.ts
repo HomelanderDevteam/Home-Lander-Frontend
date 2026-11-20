@@ -1,5 +1,4 @@
-import type { AxiosInstance } from 'axios';
-import { apiClient } from '../../../lib/api/client';
+import { apiClient, type ApiClient } from '../../../lib/api/client';
 import type { AgentPropertyTask, AgentServiceMode } from '../../agents/types/agent';
 
 export interface VerificationService {
@@ -8,7 +7,7 @@ export interface VerificationService {
 }
 
 export interface VerificationApiContract {
-  getVerification(client: AxiosInstance, id: string): Promise<AgentPropertyTask | null>;
+  getVerification(client: ApiClient, id: string): Promise<AgentPropertyTask | null>;
 }
 
 export class VerificationApiNotConfiguredError extends Error {
@@ -19,7 +18,7 @@ export class VerificationApiNotConfiguredError extends Error {
 }
 
 export function createVerificationService(
-  client: AxiosInstance,
+  client: ApiClient,
   contract?: VerificationApiContract,
 ): VerificationService {
   if (!contract) {

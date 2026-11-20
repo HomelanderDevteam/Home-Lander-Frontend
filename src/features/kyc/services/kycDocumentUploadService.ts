@@ -1,5 +1,4 @@
-import type { AxiosInstance } from 'axios';
-import { apiClient } from '../../../lib/api/client';
+import { apiClient, type ApiClient } from '../../../lib/api/client';
 
 export interface KycDocumentReference {
   id: string;
@@ -15,7 +14,7 @@ export interface KycDocumentUploadService {
  * confirms the private document-upload contract.
  */
 export interface KycDocumentUploadContract {
-  upload(client: AxiosInstance, file: File): Promise<KycDocumentReference>;
+  upload(client: ApiClient, file: File): Promise<KycDocumentReference>;
 }
 
 export class KycDocumentUploadNotConfiguredError extends Error {
@@ -26,7 +25,7 @@ export class KycDocumentUploadNotConfiguredError extends Error {
 }
 
 export function createKycDocumentUploadService(
-  client: AxiosInstance,
+  client: ApiClient,
   contract?: KycDocumentUploadContract,
 ): KycDocumentUploadService {
   if (!contract) {

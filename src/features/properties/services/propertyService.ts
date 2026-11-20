@@ -1,4 +1,4 @@
-import type { AxiosInstance } from 'axios';
+import type { ApiClient } from '../../../lib/api/client';
 import type { Property, PropertyFilters } from '../types/property';
 
 export interface PropertyService {
@@ -12,8 +12,8 @@ export interface PropertyService {
  * after the property API contract is agreed with the backend team.
  */
 export interface PropertyApiContract {
-  list(client: AxiosInstance, filters: PropertyFilters): Promise<Property[]>;
-  getById(client: AxiosInstance, id: string): Promise<Property | null>;
+  list(client: ApiClient, filters: PropertyFilters): Promise<Property[]>;
+  getById(client: ApiClient, id: string): Promise<Property | null>;
 }
 
 export class PropertyApiNotConfiguredError extends Error {
@@ -24,7 +24,7 @@ export class PropertyApiNotConfiguredError extends Error {
 }
 
 export function createPropertyService(
-  client: AxiosInstance,
+  client: ApiClient,
   contract?: PropertyApiContract,
 ): PropertyService {
   if (!contract) {

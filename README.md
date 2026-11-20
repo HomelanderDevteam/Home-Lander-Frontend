@@ -9,7 +9,7 @@ data, not real offers.
 
 - React and TypeScript, built with Vite
 - React Router DOM and TanStack Query
-- Axios, React Hook Form, and Zod
+- OpenAPI Fetch, React Hook Form, and Zod
 - Tailwind CSS and Styled Components
 - Lucide React
 - ESLint and Prettier
@@ -25,8 +25,34 @@ Copy-Item .env.example .env
 npm run dev
 ```
 
-The API base URL is configured with `VITE_API_BASE_URL` in `.env`; the example value points to
-`http://localhost:8000/api`. The frontend does not assume a backend framework or specific endpoints.
+`VITE_API_BASE_URL` configures the API base URL. `.env.example` contains a local development
+example; production deployments must set the same variable to the backend's production URL through
+their deployment environment or a local `.env.production` file. Do not commit environment files.
+
+### Generated API
+
+The shared OpenAPI Fetch client is in `src/lib/api/client.ts`, API environment configuration is in
+`src/config/api.ts`, and feature-specific service boundaries remain under each feature's `services/`
+folder. The repository currently has no backend OpenAPI contract. `openapi/openapi.yaml` is an
+explicitly empty placeholder; it does not define endpoints or response shapes, and the generated
+schema therefore has no operations until the backend contract is supplied.
+
+Replace the placeholder with the backend's authoritative OpenAPI JSON/YAML file, then run:
+
+```sh
+npm run api:generate
+```
+
+This writes generated path and schema types to `src/lib/api/generated/schema.d.ts`. Do not edit that
+generated file manually. Feature adapters should call operations through the shared generated client
+and map their responses to frontend-specific types only where the UI needs a separate model. The
+client supports an injected `getAuthHeaders` provider without imposing a token format or storage
+strategy; configure it only after the backend's authentication contract is agreed. Non-2xx
+responses are surfaced as `ApiHttpError`.
+
+The current API service contracts deliberately have no endpoint adapters, and demo screens continue
+to use their existing mock/local data sources. Before wiring a feature to the backend, its OpenAPI
+operations and authentication, error, pagination, status, and upload semantics must be confirmed.
 
 ## Development commands
 
@@ -58,15 +84,16 @@ src/
 │   │   ├── context/      # Auth state provider and hook
 │   │   ├── pages/        # Login, registration, recovery, verification
 │   │   ├── schemas/      # Zod validation and tests
-│   │   ├── services/     # Axios-backed service boundary and role mapping
+│   │   ├── services/     # API service boundary and role mapping
 │   │   └── types/        # Frontend auth model
 │   ├── dashboard/        # Owner dashboard, properties, submission, verification
 │   ├── messaging/        # Property conversations, message UI, and service boundary
 │   ├── properties/       # Sample data, property UI, and browse/detail pages
 │   └── ...               # Future marketplace features
 ├── hooks/               # Shared React hooks
+├── config/              # API environment configuration
 ├── lib/
-│   └── api/             # Shared API client (not yet used by sample screens)
+│   └── api/             # Shared generated-schema OpenAPI client
 ├── routes/              # Home and not-found pages
 ├── styles/              # Tailwind entry and design tokens
 ├── test/                # Test setup and test utilities
@@ -100,7 +127,7 @@ prepared, but no authentication request or session persistence is implemented. T
 throws an explicit configuration error instead of returning success-shaped mock data.
 
 To integrate a backend, implement the `AuthApiContract` in
-`src/features/auth/services/authService.ts` using the shared Axios client, normalize its response
+`src/features/auth/services/authService.ts` using the shared generated OpenAPI client, normalize its response
 to the frontend `AuthUser`, and inject the configured service through `AppProviders`. Keep
 backend role identifiers in a `createAuthRoleMapper` mapping; the app does not assume backend role
 names.
@@ -151,7 +178,7 @@ gallery, features, listing metadata, and a disabled contact action. No mock list
 verified offer.
 
 `src/features/properties/data/sampleProperties.ts` is the current UI data source.
-`src/features/properties/services/propertyService.ts` defines the separate Axios adapter boundary;
+`src/features/properties/services/propertyService.ts` defines the separate API adapter boundary;
 its default implementation reports that the API is not configured rather than returning mock
 success. To connect the backend, agree on listing/detail endpoints, query parameter names and
 semantics, sorting/pagination strategy, response/error envelopes, price/currency representation,
@@ -170,8 +197,8 @@ included in public property content. Image previews use temporary object URLs an
 the selection changes or the form unmounts. Only a mapped `verified` status is displayed as
 verified; unknown backend status strings are shown as unavailable.
 
-`src/features/dashboard/services/propertyOwnerService.ts` defines a separate Axios-backed service
-contract and `propertyOwnerApiService` uses the shared Axios client. It intentionally has no default
+`src/features/dashboard/services/propertyOwnerService.ts` defines a separate API service
+contract and `propertyOwnerApiService` uses the shared generated OpenAPI client. It intentionally has no default
 endpoints or payload encoding. Before providing a `PropertyOwnerApiContract`, agree with the backend
 team on:
 
@@ -220,9 +247,9 @@ selection changes or the form unmounts. The mock service stores only status and 
 The default document upload service throws an explicit configuration error rather than simulating
 an upload.
 
-`src/features/kyc/services/kycService.ts` and `kycDocumentUploadService.ts` use the shared Axios
-instance through injectable contracts without inventing endpoint paths, payload encoding, or upload
-transport. Before backend integration, agree on:
+`src/features/kyc/services/kycService.ts` and `kycDocumentUploadService.ts` use the shared generated
+OpenAPI client through injectable contracts without inventing endpoint paths, payload encoding, or
+upload transport. Before backend integration, agree on:
 
 - Authenticated current-user KYC status and submission/resubmission operations, access controls,
   methods/routes, status and response/error formats, and whether approved records can ever change.
@@ -252,7 +279,7 @@ the demo keeps final status pending, and an agent cannot mark a property verifie
 Ownership-document contents are not surfaced in agent pages; the UI only displays a review status
 and requires a backend-controlled private document access process.
 
-Application, agent dashboard, inspection, and final verification Axios contracts are defined in
+Application, agent dashboard, inspection, and final verification API contracts are defined in
 `src/features/agents/services/agentApplicationService.ts`,
 `agentDashboardService.ts`, `src/features/verification/services/inspectionService.ts`, and
 `verificationService.ts`. The active demo adapters are selected in
@@ -286,8 +313,8 @@ are implemented with reusable components. The property detail contact action ope
 The active implementation in `src/features/messaging/services/configuredMessagingService.ts` uses
 in-memory illustrative conversations. Starting or sending a demo conversation does not contact a
 real owner, persist across reloads, or represent delivery to another user. The messaging service
-and realtime subscription have separate interfaces; `messagingApiService` uses the shared Axios
-instance only when a backend contract adapter is supplied. No endpoint paths, payloads, response
+and realtime subscription have separate interfaces; `messagingApiService` uses the shared generated
+OpenAPI client only when a backend contract adapter is supplied. No endpoint paths, payloads, response
 shapes, or transport protocol are assumed.
 
 Before backend integration, agree on:

@@ -1,5 +1,4 @@
-import type { AxiosInstance } from 'axios';
-import { apiClient } from '../../../lib/api/client';
+import { apiClient, type ApiClient } from '../../../lib/api/client';
 import type {
   OwnerProperty,
   PropertyFormValues,
@@ -19,10 +18,10 @@ export interface PropertyOwnerService {
  * contract, verification statuses, and upload/storage rules.
  */
 export interface PropertyOwnerApiContract {
-  list(client: AxiosInstance): Promise<OwnerProperty[]>;
-  getById(client: AxiosInstance, id: string): Promise<OwnerProperty | null>;
-  saveDraft(client: AxiosInstance, input: PropertyFormValues, id?: string): Promise<OwnerProperty>;
-  submit(client: AxiosInstance, input: PropertyFormValues, id?: string): Promise<OwnerProperty>;
+  list(client: ApiClient): Promise<OwnerProperty[]>;
+  getById(client: ApiClient, id: string): Promise<OwnerProperty | null>;
+  saveDraft(client: ApiClient, input: PropertyFormValues, id?: string): Promise<OwnerProperty>;
+  submit(client: ApiClient, input: PropertyFormValues, id?: string): Promise<OwnerProperty>;
 }
 
 export class PropertyOwnerApiNotConfiguredError extends Error {
@@ -33,7 +32,7 @@ export class PropertyOwnerApiNotConfiguredError extends Error {
 }
 
 export function createPropertyOwnerApiService(
-  client: AxiosInstance,
+  client: ApiClient,
   contract?: PropertyOwnerApiContract,
 ): PropertyOwnerService {
   if (!contract) {

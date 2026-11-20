@@ -1,4 +1,4 @@
-import type { AxiosInstance } from 'axios';
+import type { ApiClient } from '../../../lib/api/client';
 import type {
   AuthUser,
   EmailVerificationInput,
@@ -24,13 +24,13 @@ export interface AuthService {
  * are agreed. Keep credential/session handling inside the backend-specific adapter.
  */
 export interface AuthApiContract {
-  getSession(client: AxiosInstance): Promise<AuthUser | null>;
-  login(client: AxiosInstance, input: LoginInput): Promise<AuthUser>;
-  register(client: AxiosInstance, input: RegistrationInput): Promise<void>;
-  requestPasswordReset(client: AxiosInstance, input: PasswordResetRequestInput): Promise<void>;
-  resetPassword(client: AxiosInstance, input: PasswordResetInput): Promise<void>;
-  verifyEmail(client: AxiosInstance, input: EmailVerificationInput): Promise<void>;
-  logout(client: AxiosInstance): Promise<void>;
+  getSession(client: ApiClient): Promise<AuthUser | null>;
+  login(client: ApiClient, input: LoginInput): Promise<AuthUser>;
+  register(client: ApiClient, input: RegistrationInput): Promise<void>;
+  requestPasswordReset(client: ApiClient, input: PasswordResetRequestInput): Promise<void>;
+  resetPassword(client: ApiClient, input: PasswordResetInput): Promise<void>;
+  verifyEmail(client: ApiClient, input: EmailVerificationInput): Promise<void>;
+  logout(client: ApiClient): Promise<void>;
 }
 
 export class AuthNotConfiguredError extends Error {
@@ -40,7 +40,7 @@ export class AuthNotConfiguredError extends Error {
   }
 }
 
-export function createAuthService(client: AxiosInstance, contract?: AuthApiContract): AuthService {
+export function createAuthService(client: ApiClient, contract?: AuthApiContract): AuthService {
   if (!contract) {
     const unavailable = async (): Promise<never> => {
       throw new AuthNotConfiguredError();

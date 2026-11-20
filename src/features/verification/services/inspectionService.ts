@@ -1,5 +1,4 @@
-import type { AxiosInstance } from 'axios';
-import { apiClient } from '../../../lib/api/client';
+import { apiClient, type ApiClient } from '../../../lib/api/client';
 import type { AgentServiceMode, InspectionReportValues } from '../../agents/types/agent';
 
 export interface InspectionSubmissionResult {
@@ -15,7 +14,7 @@ export interface InspectionService {
 
 export interface InspectionApiContract {
   submit(
-    client: AxiosInstance,
+    client: ApiClient,
     taskId: string,
     values: InspectionReportValues,
   ): Promise<InspectionSubmissionResult>;
@@ -29,7 +28,7 @@ export class InspectionApiNotConfiguredError extends Error {
 }
 
 export function createInspectionService(
-  client: AxiosInstance,
+  client: ApiClient,
   contract?: InspectionApiContract,
 ): InspectionService {
   if (!contract) {

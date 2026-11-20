@@ -1,5 +1,4 @@
-import type { AxiosInstance } from 'axios';
-import { apiClient } from '../../../lib/api/client';
+import { apiClient, type ApiClient } from '../../../lib/api/client';
 import type { AgentDashboardSummary, AgentPropertyTask, AgentServiceMode } from '../types/agent';
 
 export interface AgentDashboardService {
@@ -10,10 +9,10 @@ export interface AgentDashboardService {
 }
 
 export interface AgentDashboardApiContract {
-  getSummary(client: AxiosInstance): Promise<AgentDashboardSummary>;
-  getTask(client: AxiosInstance, id: string): Promise<AgentPropertyTask | null>;
+  getSummary(client: ApiClient): Promise<AgentDashboardSummary>;
+  getTask(client: ApiClient, id: string): Promise<AgentPropertyTask | null>;
   updateTaskStatus(
-    client: AxiosInstance,
+    client: ApiClient,
     id: string,
     status: AgentPropertyTask['taskStatus'],
   ): Promise<AgentPropertyTask>;
@@ -27,7 +26,7 @@ export class AgentDashboardApiNotConfiguredError extends Error {
 }
 
 export function createAgentDashboardService(
-  client: AxiosInstance,
+  client: ApiClient,
   contract?: AgentDashboardApiContract,
 ): AgentDashboardService {
   if (!contract) {

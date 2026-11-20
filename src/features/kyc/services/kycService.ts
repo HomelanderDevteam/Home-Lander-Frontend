@@ -1,5 +1,4 @@
-import type { AxiosInstance } from 'axios';
-import { apiClient } from '../../../lib/api/client';
+import { apiClient, type ApiClient } from '../../../lib/api/client';
 import type { KycRecord, KycServiceMode, KycSubmissionInput } from '../types/kyc';
 
 export interface KycService {
@@ -13,8 +12,8 @@ export interface KycService {
  * and the secure document-upload process have been confirmed with the backend.
  */
 export interface KycApiContract {
-  getCurrent(client: AxiosInstance): Promise<KycRecord>;
-  submit(client: AxiosInstance, input: KycSubmissionInput): Promise<KycRecord>;
+  getCurrent(client: ApiClient): Promise<KycRecord>;
+  submit(client: ApiClient, input: KycSubmissionInput): Promise<KycRecord>;
 }
 
 export class KycApiNotConfiguredError extends Error {
@@ -24,7 +23,7 @@ export class KycApiNotConfiguredError extends Error {
   }
 }
 
-export function createKycService(client: AxiosInstance, contract?: KycApiContract): KycService {
+export function createKycService(client: ApiClient, contract?: KycApiContract): KycService {
   if (!contract) {
     const unavailable = async (): Promise<never> => {
       throw new KycApiNotConfiguredError();

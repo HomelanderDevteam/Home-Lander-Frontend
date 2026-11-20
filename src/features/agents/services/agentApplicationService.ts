@@ -1,5 +1,4 @@
-import type { AxiosInstance } from 'axios';
-import { apiClient } from '../../../lib/api/client';
+import { apiClient, type ApiClient } from '../../../lib/api/client';
 import type {
   AgentApplicationRecord,
   AgentApplicationValues,
@@ -13,8 +12,8 @@ export interface AgentApplicationService {
 }
 
 export interface AgentApplicationApiContract {
-  getCurrent(client: AxiosInstance): Promise<AgentApplicationRecord>;
-  submit(client: AxiosInstance, values: AgentApplicationValues): Promise<AgentApplicationRecord>;
+  getCurrent(client: ApiClient): Promise<AgentApplicationRecord>;
+  submit(client: ApiClient, values: AgentApplicationValues): Promise<AgentApplicationRecord>;
 }
 
 export class AgentApplicationApiNotConfiguredError extends Error {
@@ -25,7 +24,7 @@ export class AgentApplicationApiNotConfiguredError extends Error {
 }
 
 export function createAgentApplicationService(
-  client: AxiosInstance,
+  client: ApiClient,
   contract?: AgentApplicationApiContract,
 ): AgentApplicationService {
   if (!contract) {

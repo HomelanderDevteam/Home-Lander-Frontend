@@ -1,5 +1,4 @@
-import type { AxiosInstance } from 'axios';
-import { apiClient } from '../../../lib/api/client';
+import { apiClient, type ApiClient } from '../../../lib/api/client';
 import type { Conversation, ConversationProperty, Message, MessagePage } from '../types/messaging';
 
 export interface MessagingService {
@@ -13,16 +12,16 @@ export interface MessagingService {
 }
 
 export interface MessagingApiContract {
-  getConversations(client: AxiosInstance): Promise<Conversation[]>;
-  startConversation(client: AxiosInstance, property: ConversationProperty): Promise<Conversation>;
-  getMessages(client: AxiosInstance, conversationId: string): Promise<MessagePage>;
+  getConversations(client: ApiClient): Promise<Conversation[]>;
+  startConversation(client: ApiClient, property: ConversationProperty): Promise<Conversation>;
+  getMessages(client: ApiClient, conversationId: string): Promise<MessagePage>;
   loadOlderMessages(
-    client: AxiosInstance,
+    client: ApiClient,
     conversationId: string,
     beforeMessageId: string,
   ): Promise<MessagePage>;
-  sendMessage(client: AxiosInstance, conversationId: string, body: string): Promise<Message>;
-  markConversationRead(client: AxiosInstance, conversationId: string): Promise<void>;
+  sendMessage(client: ApiClient, conversationId: string, body: string): Promise<Message>;
+  markConversationRead(client: ApiClient, conversationId: string): Promise<void>;
 }
 
 export class MessagingApiNotConfiguredError extends Error {
@@ -33,7 +32,7 @@ export class MessagingApiNotConfiguredError extends Error {
 }
 
 export function createMessagingService(
-  client: AxiosInstance,
+  client: ApiClient,
   contract?: MessagingApiContract,
 ): MessagingService {
   if (!contract) {
