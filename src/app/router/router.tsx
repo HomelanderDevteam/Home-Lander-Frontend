@@ -23,6 +23,7 @@ import { PropertiesPage } from '../../features/properties/pages/PropertiesPage';
 import { PropertyDetailsPage } from '../../features/properties/pages/PropertyDetailsPage';
 import { HomePage } from '../../routes/HomePage';
 import { NotFoundPage } from '../../routes/NotFoundPage';
+import { WaitlistPage } from '../../features/waitlist/pages/waitlistpage';
 
 export const router = createBrowserRouter([
   {
@@ -88,8 +89,12 @@ export const router = createBrowserRouter([
       },
     ],
   },
+    {
+    path: 'waitlist',
+    element: <WaitlistPage />,
+  },
   {
-    path: 'dashboard',
+     path: 'dashboard',
     element: (
       <ProtectedRoute>
         <DashboardLayout />
